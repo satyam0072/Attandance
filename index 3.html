@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIT Patna - ERP Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        iitnavy: '#0B192C',
+                        iitblue: '#1E3E62',
+                        iitgold: '#FFB800',
+                        iitaccent: '#00adb5',
+                        iitlight: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item.active {
+            background-color: #1E3E62;
+            color: #FFB800;
+            border-left: 4px solid #FFB800;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-iitnavy text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+            <!-- Brand / Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-iitgold text-iitnavy font-bold flex items-center justify-center text-xl shadow">
+                    IITP
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide">IIT PATNA</h1>
+                    <p class="text-xs text-gray-300">Academic & Administrative ERP Portal</p>
+                </div>
+            </div>
+
+            <!-- Role Switcher & User Profile -->
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center bg-iitblue px-3 py-1.5 rounded-lg border border-gray-700 text-sm">
+                    <span class="mr-2 text-xs text-gray-300 font-medium">Role:</span>
+                    <select id="roleSelect" onchange="toggleRole()" class="bg-transparent text-iitgold font-semibold focus:outline-none cursor-pointer">
+                        <option value="student" class="bg-iitnavy text-white">Student (Aarav Sharma)</option>
+                        <option value="faculty" class="bg-iitnavy text-white">Faculty (Dr. Sameer Roy)</option>
+                    </select>
+                </div>
+                
+                <div class="hidden sm:flex items-center space-x-3 pl-4 border-l border-gray-700">
+                    <div class="text-right">
+                        <p id="userName" class="text-sm font-semibold text-white">Aarav Sharma</p>
+                        <p id="userRole" class="text-xs text-gray-300">Roll: 2201CS01 | B.Tech CSE</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-full bg-iitgold text-iitnavy font-bold flex items-center justify-center border-2 border-white">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 gap-6">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-iitnavy text-white rounded-xl shadow-lg flex-shrink-0 hidden md:block overflow-hidden flex flex-col justify-between">
+            <div class="py-4">
+                <p class="px-6 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Navigation</p>
+                <nav class="space-y-1">
+                    <button onclick="showTab('dashboard')" id="nav-dashboard" class="sidebar-item active w-full flex items-center px-6 py-3 text-sm font-medium transition-all">
+                        <i class="fa-solid fa-chart-pie w-6"></i> Dashboard
+                    </button>
+                    <button onclick="showTab('academics')" id="nav-academics" class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-iitblue">
+                        <i class="fa-solid fa-book-open w-6"></i> Academics & Courses
+                    </button>
+                    <button onclick="showTab('exams')" id="nav-exams" class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-iitblue">
+                        <i class="fa-solid fa-graduation-cap w-6"></i> Exams & Grades
+                    </button>
+                    <button onclick="showTab('fees')" id="nav-fees" class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-iitblue">
+                        <i class="fa-solid fa-credit-card w-6"></i> Fee Payment
+                    </button>
+                    <button onclick="showTab('hostel')" id="nav-hostel" class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-iitblue">
+                        <i class="fa-solid fa-building-user w-6"></i> Hostel & Mess
+                    </button>
+                    <button onclick="showTab('library')" id="nav-library" class="sidebar-item w-full flex items-center px-6 py-3 text-sm font-medium transition-all text-gray-300 hover:text-white hover:bg-iitblue">
+                        <i class="fa-solid fa-book w-6"></i> Central Library
+                    </button>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-gray-700 text-xs text-center text-gray-400">
+                <p>IIT Patna ERP v3.2</p>
+                <p class="mt-1">Support: <a href="mailto:erp@iitp.ac.in" class="text-iitgold hover:underline">erp@iitp.ac.in</a></p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 space-y-6">
+
+            <!-- DASHBOARD SECTION -->
+            <section id="tab-dashboard" class="tab-content space-y-6">
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-iitnavy to-iitblue rounded-xl p-6 text-white shadow-md relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h2 class="text-2xl font-bold" id="dashWelcome">Welcome back, Aarav!</h2>
+                        <p class="text-gray-300 text-sm mt-1" id="dashSubtitle">Autumn Semester 2026-27 | B.Tech Computer Science & Engineering</p>
+                        <div class="flex flex-wrap gap-4 mt-4">
+                            <span class="bg-iitgold text-iitnavy px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-star"></i> CPI: 8.84
+                            </span>
+                            <span class="bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-check-circle"></i> Reg. Status: Active
+                            </span>
+                            <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-calendar-days"></i> Semester 5
+                            </span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-university absolute -right-4 -bottom-6 text-white/10 text-9xl pointer-events-none"></i>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-500 font-medium">Avg Attendance</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">88.5%</p>
+                            <p class="text-xs text-emerald-600 mt-1"><i class="fa-solid fa-arrow-up"></i> Above required 75%</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-50 text-iitblue rounded-lg flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-clipboard-user"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-500 font-medium">Registered Courses</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">6 Courses</p>
+                            <p class="text-xs text-gray-500 mt-1">22 Total Credits</p>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-50 text-iitgold rounded-lg flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-book"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-500 font-medium">Pending Dues</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">₹0.00</p>
+                            <p class="text-xs text-emerald-600 mt-1"><i class="fa-solid fa-check"></i> All fees cleared</p>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-500 font-medium">Library Books Issued</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">2 Books</p>
+                            <p class="text-xs text-amber-600 mt-1"><i class="fa-solid fa-clock"></i> Due in 5 days</p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart and Announcements Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- CPI Trajectory Chart -->
+                    <div class="lg:col-span-2 bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-iitblue"></i> Academic Performance Trajectory
+                            </h3>
+                            <span class="text-xs text-gray-500">SPI vs CPI</span>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="spiChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Campus Announcements -->
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-bullhorn text-iitgold"></i> Official Notices
+                            </h3>
+                            <div class="space-y-3 text-xs">
+                                <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-iitblue">
+                                    <p class="font-semibold text-gray-800">Mid-Semester Exam Schedule Released</p>
+                                    <p class="text-gray-500 mt-1">Mid-term exams commence from Oct 12, 2026. Check details in Exams tab.</p>
+                                    <span class="text-[10px] text-gray-400 mt-1 block">Sep 20, 2026</span>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-iitgold">
+                                    <p class="font-semibold text-gray-800">Anwesha '27 Core Committee Applications</p>
+                                    <p class="text-gray-500 mt-1">Applications open for student head coordinators till Sep 25.</p>
+                                    <span class="text-[10px] text-gray-400 mt-1 block">Sep 18, 2026</span>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg border-l-4 border-emerald-500">
+                                    <p class="font-semibold text-gray-800">Hostel Mess Menu Revision</p>
+                                    <p class="text-gray-500 mt-1">Updated Autumn semester menu is live under Hostel tab.</p>
+                                    <span class="text-[10px] text-gray-400 mt-1 block">Sep 15, 2026</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="mt-4 w-full py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-xs font-semibold">
+                            View All Notices
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACADEMICS SECTION -->
+            <section id="tab-academics" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Enrolled Courses (Autumn 2026-27)</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-700 border-b border-gray-200">
+                                    <th class="p-3">Course Code</th>
+                                    <th class="p-3">Course Title</th>
+                                    <th class="p-3">Instructor</th>
+                                    <th class="p-3">Credits</th>
+                                    <th class="p-3">Attendance</th>
+                                    <th class="p-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="p-3 font-semibold text-iitblue">CS301</td>
+                                    <td class="p-3 font-medium">Database Management Systems</td>
+                                    <td class="p-3 text-gray-600">Dr. Sameer Roy</td>
+                                    <td class="p-3">3-0-2 (4)</td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-emerald-500 h-2 rounded-full" style="width: 92%"></div>
+                                            </div>
+                                            <span class="text-xs font-semibold">92%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded font-medium">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-iitblue">CS303</td>
+                                    <td class="p-3 font-medium">Operating Systems</td>
+                                    <td class="p-3 text-gray-600">Prof. A. K. Verma</td>
+                                    <td class="p-3">3-0-0 (3)</td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-emerald-500 h-2 rounded-full" style="width: 85%"></div>
+                                            </div>
+                                            <span class="text-xs font-semibold">85%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded font-medium">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-iitblue">CS305</td>
+                                    <td class="p-3 font-medium">Computer Networks</td>
+                                    <td class="p-3 text-gray-600">Dr. S. Mukhopadhyay</td>
+                                    <td class="p-3">3-0-2 (4)</td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-amber-500 h-2 rounded-full" style="width: 76%"></div>
+                                            </div>
+                                            <span class="text-xs font-semibold">76%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded font-medium">Warning</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-semibold text-iitblue">MA301</td>
+                                    <td class="p-3 font-medium">Optimization Techniques</td>
+                                    <td class="p-3 text-gray-600">Dr. R. N. Singh</td>
+                                    <td class="p-3">3-1-0 (4)</td>
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-24 bg-gray-200 rounded-full h-2">
+                                                <div class="bg-emerald-500 h-2 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                            <span class="text-xs font-semibold">90%</span>
+                                        </div>
+                                    </td>
+                                    <td class="p-3"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded font-medium">Good</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Timetable -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Weekly Schedule</h2>
+                    <div class="grid grid-cols-5 gap-3 text-center text-xs">
+                        <div class="p-3 bg-gray-100 rounded-lg font-bold">Monday</div>
+                        <div class="p-3 bg-gray-100 rounded-lg font-bold">Tuesday</div>
+                        <div class="p-3 bg-gray-100 rounded-lg font-bold">Wednesday</div>
+                        <div class="p-3 bg-gray-100 rounded-lg font-bold">Thursday</div>
+                        <div class="p-3 bg-gray-100 rounded-lg font-bold">Friday</div>
+
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-iitblue font-medium">
+                            <p class="font-bold">CS301 (DBMS)</p>
+                            <p class="text-[10px] text-gray-500 mt-1">09:00 - 10:00 | LH-101</p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 font-medium">
+                            <p class="font-bold">CS303 (OS)</p>
+                            <p class="text-[10px] text-gray-500 mt-1">09:00 - 10:00 | LH-102</p>
+                        </div>
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg text-iitblue font-medium">
+                            <p class="font-bold">CS301 (DBMS)</p>
+                            <p class="text-[10px] text-gray-500 mt-1">09:00 - 10:00 | LH-101</p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 font-medium">
+                            <p class="font-bold">CS303 (OS)</p>
+                            <p class="text-[10px] text-gray-500 mt-1">09:00 - 10:00 | LH-102</p>
+                        </div>
+                        <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg text-purple-800 font-medium">
+                            <p class="font-bold">MA301 (Optimization)</p>
+                            <p class="text-[10px] text-gray-500 mt-1">09:00 - 10:00 | LH-201</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EXAMS & GRADES SECTION -->
+            <section id="tab-exams" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Semester Grade History</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="p-4 bg-gray-50 rounded-lg text-center border">
+                            <p class="text-xs text-gray-500">Sem 1 SPI</p>
+                            <p class="text-xl font-bold text-iitblue">8.50</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg text-center border">
+                            <p class="text-xs text-gray-500">Sem 2 SPI</p>
+                            <p class="text-xl font-bold text-iitblue">8.92</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg text-center border">
+                            <p class="text-xs text-gray-500">Sem 3 SPI</p>
+                            <p class="text-xl font-bold text-iitblue">8.75</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg text-center border">
+                            <p class="text-xs text-gray-500">Sem 4 SPI</p>
+                            <p class="text-xl font-bold text-iitblue">9.20</p>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-gray-800 mb-3">Previous Semester Performance (Sem 4)</h3>
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700">
+                                <th class="p-3">Course</th>
+                                <th class="p-3">Title</th>
+                                <th class="p-3">Credits</th>
+                                <th class="p-3">Grade Obtained</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr>
+                                <td class="p-3 font-semibold">CS202</td>
+                                <td class="p-3">Data Structures & Algorithms</td>
+                                <td class="p-3">4</td>
+                                <td class="p-3 font-bold text-emerald-600">AA (10)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold">CS204</td>
+                                <td class="p-3">Computer Organization</td>
+                                <td class="p-3">4</td>
+                                <td class="p-3 font-bold text-blue-600">AB (9)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-semibold">MA202</td>
+                                <td class="p-3">Discrete Mathematics</td>
+                                <td class="p-3">3</td>
+                                <td class="p-3 font-bold text-emerald-600">AA (10)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- FEE PAYMENT SECTION -->
+            <section id="tab-fees" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">Semester Fee Structure & Payment</h2>
+                    <p class="text-xs text-gray-500 mb-6">Autumn Semester 2026-27 | Fee Receipt & Online Portal</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm py-2 border-b">
+                                <span class="text-gray-600">Tuition Fee</span>
+                                <span class="font-semibold">₹1,00,000</span>
+                            </div>
+                            <div class="flex justify-between text-sm py-2 border-b">
+                                <span class="text-gray-600">Hostel Rent & Establishment</span>
+                                <span class="font-semibold">₹18,500</span>
+                            </div>
+                            <div class="flex justify-between text-sm py-2 border-b">
+                                <span class="text-gray-600">Mess Advance</span>
+                                <span class="font-semibold">₹21,000</span>
+                            </div>
+                            <div class="flex justify-between text-sm py-2 border-b">
+                                <span class="text-gray-600">Student Gymkhana & Fest Charges</span>
+                                <span class="font-semibold">₹3,500</span>
+                            </div>
+                            <div class="flex justify-between text-base font-bold py-3 text-iitnavy border-b-2">
+                                <span>Total Payable</span>
+                                <span>₹1,43,000</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-5 rounded-xl border flex flex-col justify-between">
+                            <div>
+                                <span class="inline-block px-3 py-1 bg-emerald-100 text-emerald-700 font-bold text-xs rounded-full mb-3">
+                                    <i class="fa-solid fa-check-circle"></i> Status: PAID
+                                </span>
+                                <p class="text-sm font-semibold text-gray-800">Transaction Ref: SBI-ERP-20260812-98341</p>
+                                <p class="text-xs text-gray-500 mt-1">Paid on: 12th August 2026 via Net Banking</p>
+                            </div>
+                            <button class="mt-4 w-full py-2.5 bg-iitnavy text-white rounded-lg text-sm font-semibold hover:bg-iitblue flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download"></i> Download Fee Receipt PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HOSTEL & MESS SECTION -->
+            <section id="tab-hostel" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Hostel Allotment & Mess Schedule</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="p-4 bg-gray-50 rounded-lg border">
+                            <p class="text-xs text-gray-500">Allocated Hall of Residence</p>
+                            <p class="text-lg font-bold text-iitnavy mt-1">C. V. Raman Hall (Hostel 1)</p>
+                            <p class="text-xs text-gray-600 mt-1">Room No: B-304 | Single Occupancy</p>
+                            <p class="text-xs text-gray-600">Warden: Dr. R. K. Jha</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg border">
+                            <p class="text-xs text-gray-500">Mess Registration</p>
+                            <p class="text-lg font-bold text-iitnavy mt-1">Central Mess - Hall A</p>
+                            <p class="text-xs text-gray-600 mt-1">Dietary Preference: Veg / Non-Veg</p>
+                            <p class="text-xs text-emerald-600 font-semibold mt-1"><i class="fa-solid fa-check"></i> Active Subscription</p>
+                        </div>
+                    </div>
+
+                    <h3 class="font-bold text-gray-800 mb-3">Weekly Mess Menu</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                        <div class="p-3 bg-amber-50/50 rounded-lg border border-amber-200">
+                            <p class="font-bold text-amber-900 border-b pb-1 mb-2">Breakfast (07:30 - 09:30)</p>
+                            <p class="text-gray-700">Puri Bhaji / Masala Dosa, Choice of Eggs, Tea/Coffee, Fruit</p>
+                        </div>
+                        <div class="p-3 bg-amber-50/50 rounded-lg border border-amber-200">
+                            <p class="font-bold text-amber-900 border-b pb-1 mb-2">Lunch (12:00 - 14:00)</p>
+                            <p class="text-gray-700">Paneer Butter Masala / Chicken Curry, Dal Tadka, Rice, Roti, Salad</p>
+                        </div>
+                        <div class="p-3 bg-amber-50/50 rounded-lg border border-amber-200">
+                            <p class="font-bold text-amber-900 border-b pb-1 mb-2">Dinner (19:30 - 21:30)</p>
+                            <p class="text-gray-700">Seasonal Veg, Rajma, Jeera Rice, Chapati, Gulab Jamun</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CENTRAL LIBRARY SECTION -->
+            <section id="tab-library" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Central Library Account</h2>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-gray-50 rounded-lg border flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-gray-800">Database System Concepts (7th Edition)</p>
+                                <p class="text-xs text-gray-500">Author: Silberschatz, Korth, Sudarshan | Acc No: LIB-89234</p>
+                                <p class="text-xs text-amber-600 mt-1"><i class="fa-solid fa-calendar"></i> Due Date: 28 Sep 2026</p>
+                            </div>
+                            <button class="px-3 py-1.5 bg-iitblue text-white text-xs font-semibold rounded-lg">Renew Book</button>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-lg border flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-gray-800">Modern Operating Systems (4th Edition)</p>
+                                <p class="text-xs text-gray-500">Author: Andrew S. Tanenbaum | Acc No: LIB-45120</p>
+                                <p class="text-xs text-amber-600 mt-1"><i class="fa-solid fa-calendar"></i> Due Date: 30 Sep 2026</p>
+                            </div>
+                            <button class="px-3 py-1.5 bg-iitblue text-white text-xs font-semibold rounded-lg">Renew Book</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-iitnavy text-gray-400 text-xs py-4 text-center mt-auto border-t border-gray-800">
+        <p>© 2026 Indian Institute of Technology Patna. All Rights Reserved.</p>
+        <p class="mt-1">Bihta, Patna, Bihar 801106, India</p>
+    </footer>
+
+    <!-- JavaScript Navigation and Role Switching Logic -->
+    <script>
+        // Tab switching function
+        function showTab(tabId) {
+            // Hide all tab content
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+
+            // Remove active style from sidebar items
+            const navItems = document.querySelectorAll('.sidebar-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                item.classList.add('text-gray-300');
+            });
+
+            // Show selected tab
+            const targetTab = document.getElementById('tab-' + tabId);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+
+            // Highlight active sidebar button
+            const activeNav = document.getElementById('nav-' + tabId);
+            if (activeNav) {
+                activeNav.classList.add('active');
+                activeNav.classList.remove('text-gray-300');
+            }
+        }
+
+        // Toggle user role simulation
+        function toggleRole() {
+            const roleSelect = document.getElementById('roleSelect').value;
+            const userName = document.getElementById('userName');
+            const userRole = document.getElementById('userRole');
+            const dashWelcome = document.getElementById('dashWelcome');
+            const dashSubtitle = document.getElementById('dashSubtitle');
+
+            if (roleSelect === 'faculty') {
+                userName.textContent = 'Dr. Sameer Roy';
+                userRole.textContent = 'Faculty ID: FAC102 | Associate Professor';
+                dashWelcome.textContent = 'Welcome back, Dr. Roy!';
+                dashSubtitle.textContent = 'Department of Computer Science & Engineering | Autumn 2026-27';
+            } else {
+                userName.textContent = 'Aarav Sharma';
+                userRole.textContent = 'Roll: 2201CS01 | B.Tech CSE';
+                dashWelcome.textContent = 'Welcome back, Aarav!';
+                dashSubtitle.textContent = 'Autumn Semester 2026-27 | B.Tech Computer Science & Engineering';
+            }
+        }
+
+        // Initialize SPI/CPI Trajectory Chart using Chart.js
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('spiChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+                    datasets: [
+                        {
+                            label: 'SPI',
+                            data: [8.50, 8.92, 8.75, 9.20],
+                            borderColor: '#FFB800',
+                            backgroundColor: 'rgba(255, 184, 0, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'CPI',
+                            data: [8.50, 8.71, 8.72, 8.84],
+                            borderColor: '#1E3E62',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 6.0,
+                            max: 10.0,
+                            ticks: { stepSize: 0.5 }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
